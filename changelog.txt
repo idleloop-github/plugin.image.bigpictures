@@ -1,3 +1,8 @@
+4.2.1 (06.08.2017)
+  fixed for Kodi 17
+  fixed 4 scrapers and removed the rest:
+  The Big Picture, AtlanticInFocus, TotallyCoolPix, NewYorkTimesLens
+
 4.2.0 (14.02.2015)
   fixed The Big Picture Scraper (thx to Tobias Kühne)
   fixed AtlanticInFocus Scraper

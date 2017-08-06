@@ -205,19 +205,20 @@ class GUI(xbmcgui.WindowXML):
     def addItems(self, items):
         self.log('addItems')
         self.image_list.reset()
-        for item in items:
-            li = xbmcgui.ListItem(
-                label=item['title'],
-                label2=item['description'],
-                iconImage=item['pic']
-            )
-            li.setProperty(
-                'album_title',
-                self.scraper_manager.current_scraper.title
-            )
-            li.setProperty('album_url', item.get('album_url'))
-            li.setProperty('album_id', str(item.get('album_id')))
-            self.image_list.addItem(li)
+        if (len(items)>0):
+            for item in items:
+                li = xbmcgui.ListItem(
+                    label=item['title'],
+                    label2=item['description'],
+                    iconImage=item['pic']
+                )
+                li.setProperty(
+                    'album_title',
+                    self.scraper_manager.current_scraper.title
+                )
+                li.setProperty('album_url', item.get('album_url'))
+                li.setProperty('album_id', str(item.get('album_id')))
+                self.image_list.addItem(li)
 
     def getItemProperty(self, key):
         return self.image_list.getSelectedItem().getProperty(key)
