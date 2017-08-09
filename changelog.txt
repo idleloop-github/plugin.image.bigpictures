@@ -1,3 +1,6 @@
+4.2.2 (09.08.2017)  
+  fork and patch from github.com/Razzeee/script.module.bigpictures for Reddit images
+
 4.2.1 (06.08.2017)
   fixed for Kodi 17
   fixed 4 scrapers and removed the rest:

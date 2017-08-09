@@ -12,14 +12,19 @@ This addon provides beautiful albums and photos from some nice photojournalism w
 ### Installation
 
 * **Notice** that this is a two-part plugin:
-* [Download the 1st part here](https://github.com/idleloop-github/script.module.bigpictures/releases/download/v1.2.1/script.module.bigpictures-1.2.1.zip).   
+* [Download the 1st part here](https://github.com/idleloop-github/script.module.bigpictures/releases/download/v1.2.2/script.module.bigpictures-1.2.2.zip).   
 * Install the first part on Kodi:  Add-ons / Download / .. / Install from zip file / *and choose the zip file*   
-* [Download the 2nd part here](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v4.2.1/script.image.bigpictures-4.2.1.zip).   
+* [Download the 2nd part here](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v4.2.2/script.image.bigpictures-4.2.2.zip).   
 * Install the second part on Kodi: Add-ons / Download / .. / Install from zip file / *and choose the zip file*   
 
 ### History of changes
 
 Forked from [dersphere](https://github.com/dersphere/script.image.bigpictures/tree/master).   
+
+*script.module.bigpictures 1.2.2 (09.08.2017)*   
+*script.image.bigpictures  4.2.2 (09.08.2017)*   
+
+- fork and patch from [Razzeee](https://github.com/Razzeee/script.module.bigpictures) for Reddit images
 
 *script.module.bigpictures 1.2.1 (05.08.2017)*   
 *script.image.bigpictures  4.2.1 (05.08.2017)*   
