@@ -24,7 +24,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 
-from thebigpictures import ScraperManager
+from lib.thebigpictures import ScraperManager
 
 
 def show_photos(scraper_id, album_url):

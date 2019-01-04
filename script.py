@@ -21,12 +21,13 @@ import os
 import re
 import sys
 import urllib
+import datetime
 
 import xbmc
 import xbmcaddon
 import xbmcgui
 
-from thebigpictures import ScraperManager, ALL_SCRAPERS
+from lib.thebigpictures import ScraperManager, ALL_SCRAPERS
 
 addon = xbmcaddon.Addon()
 addon_path = addon.getAddonInfo('path')
@@ -55,10 +56,17 @@ class Downloader(object):
         for i, photo in enumerate(photos):
             self.current_item = i + 1
             url = photo['pic']
-            self.current_file = '%d.%s' % (
-                self.current_item, url.rsplit('.', 1)[-1]
-            )
-            filename = os.path.join(full_path, self.current_file)
+            j = 0
+            while True:
+                self.current_file = '%s.%s' % (
+                    datetime.datetime.now().strftime("%Y%m%d") + '.' + str(i + 1 + j),
+                    # extract file extension from url, and remove from it possible cgi debris
+                    re.search( r'^([a-zA-Z0-9]+)', url.rsplit('.', 1)[-1] ).group(1)
+                )
+                filename = os.path.join(full_path, self.current_file)
+                if not os.path.isfile(filename) or j>1000:
+                    break
+                j+=1
             self.log('Downloading "%s" to "%s"' % (url, filename))
             try:
                 urllib.urlretrieve(url, filename, self.update_progress)
