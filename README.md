@@ -8,35 +8,16 @@ This addon provides beautiful albums and photos from some nice photojournalism w
 - [The Atlantic: In Focus](https://www.theatlantic.com/infocus/)
 - [TotallyCoolPix.com](https://totallycoolpix.com)
 - [NewYorkTimes.com: Lens Blog](https://lens.blogs.nytimes.com/)
-- [Reddit](https://www.reddit.com/)
+- [Reddit: (11 categories)](https://www.reddit.com/)
 
 ### Installation
 
-* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v4.3.0/script.image.bigpictures-4.3.0.zip).   
+* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v4.3.1/script.image.bigpictures-4.3.1.zip).   
 * Install on Kodi: Add-ons / Download / .. / Install from zip file / *and choose the zip file*   
 
 ### History of changes
 
-Forked from [dersphere](https://github.com/dersphere/script.image.bigpictures/tree/master).   
-
-**script.image.bigpictures 4.3.0 (01.2019)**   
-
-- integrates script.module.bigpictures + script.image.bigpictures = script.image.bigpictures
-- patch changes in all sites
-- images are not overwritten when bulk downloading (with context menu button)
-- speed up by using [parseDOM](https://kodi.wiki/index.php?title=Add-on:Parsedom_for_xbmc_plugins) instead of [BeautifulSoup](https://kodi.wiki/view/Add-on/BeautifulSoup)
-
-*script.module.bigpictures 1.2.2 (09.08.2017)*   
-*script.image.bigpictures  4.2.2 (09.08.2017)*   
-
-- fork and patch from [Razzeee](https://github.com/Razzeee/script.module.bigpictures) for Reddit images
-
-*script.module.bigpictures 1.2.1 (05.08.2017)*   
-*script.image.bigpictures  4.2.1 (05.08.2017)*   
-
-- fixed for Kodi 17
-- fixed 4 scrapers and removed the rest:   
-  The Big Picture, AtlanticInFocus, TotallyCoolPix, NewYorkTimesLens
+See [changelog.txt](https://github.com/idleloop-github/script.image.bigpictures/blob/master/changelog.txt)
 
 ### Contact
 

@@ -490,7 +490,7 @@ class Reddit(BasePlugin):
                 img = self.URL_PREFIX + img
                 pic = self._get_html( img )
                 try:
-                    pic = parseDOM( parseDOM( pic, 'div', attrs={'class': '_3Oa0THmZ3f5iZXAQ0hBJ0k'}), 'a', ret='href' )[0]
+                    pic = parseDOM( parseDOM( pic, 'div', attrs={'class': '_3Oa0THmZ3f5iZXAQ0hBJ0k[^\'"]*'}), 'a', ret='href' )[0]
                     pic = replaceHTMLCodes ( pic ) # some '&amp;'' may be in urls
                 except:
                     continue
