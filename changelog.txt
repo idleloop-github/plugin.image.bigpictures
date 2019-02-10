@@ -1,3 +1,9 @@
+4.3.2 (02.2019)
+  reddit scraping improved
+
+4.3.1 (02.2019)
+  patched reddit images after site change
+
 4.3.0 (01.2019)
   integrates script.module.bigpictures + script.image.bigpictures = script.image.bigpictures
   patch changes in all sites

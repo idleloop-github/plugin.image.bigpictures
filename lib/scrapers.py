@@ -89,7 +89,7 @@ class BasePlugin(object):
                 if XBMC_MODE:
                     dialog = xbmcgui.Dialog()
                     dialog.notification( 'The Big Picture',
-                        'waiting for remote server ...', 
+                        'waiting for remote server ...',
                         xbmcgui.NOTIFICATION_INFO, int(RETRY_TIME*5000) )
                 retry_counter += retry_counter
                 time.sleep(RETRY_TIME + randint(0, 2*retries))
@@ -158,11 +158,11 @@ class TheBigPictures(BasePlugin):
                 continue
             self._albums.append({
                 'title': title,
-               'album_id': _id,
-               'pic': 'http:' + pic,
-               'description': description,
-               'album_url': album_url
-               })
+                'album_id': _id,
+                'pic': 'http:' + pic,
+                'description': description,
+                'album_url': album_url
+                })
 
         return self._albums
 
@@ -177,12 +177,12 @@ class TheBigPictures(BasePlugin):
             description = stripTags(self._parser.unescape(parseDOM(descs[_id], 'div', attrs={'class': 'gcaption geor'})[0]))
             self._photos[album_url].append({
                 'title': '%d - %s' % (_id + 1, album_title),
-               'album_title': album_title,
-               'photo_id': _id,
-               'pic': 'http:' + pic,
-               'description': description,
-               'album_url': album_url
-               })
+                'album_title': album_title,
+                'photo_id': _id,
+                'pic': 'http:' + pic,
+                'description': description,
+                'album_url': album_url
+                })
 
         return self._photos[album_url]
 
@@ -462,56 +462,40 @@ class Reddit(BasePlugin):
 
     def _get_photos(self, album_url):
         self._photos[album_url] = []
+
+        if XBMC_MODE:
+            dialog = xbmcgui.Dialog()
+            dialog.notification( 'The Big Picture',
+                'retrieving reddit images ...',
+                xbmcgui.NOTIFICATION_INFO, int(2000) )
+
         html = self._get_html( album_url )
-        album_title = parseDOM( html, 'title' )[0]
-        for id, photo in enumerate( parseDOM( html, 'div', attrs={'class': '_1poyrkZ7g36PawDueRza-J _11R7M_VOgKO1RJyRSRErT3'}) ):
+        album_title = parseDOM( html, 'title' )[0].decode('utf-8', 'ignore')
+        json_data = parseDOM( html, 'script', attrs={'id': 'data'} )[0].encode('utf-8', 'ignore')
+        json_regex = r'"author":"(?P<author>[^"]+)".+?"content":"(?P<pic>[^"]+)"(?P<urls>.+?)"created":(?P<pic_time>\d+).+?"title":"(?P<title>[^"]+)"'
+        for image_data in re.finditer( json_regex, json_data ):
 
-            if ( XBMC_MODE and id%5==0 ):
-                dialog = xbmcgui.Dialog()
-                dialog.notification( 'Retrieving images: (' + str(id) + ')', 
-                    'Please, wait ...', 
-                    xbmcgui.NOTIFICATION_INFO, 8000 )
-
-            try:
-                description = parseDOM( photo, 'h2' )[0]
-                description = replaceHTMLCodes( description.encode('utf-8', 'ignore') )
-                img = parseDOM( parseDOM( photo, 'div', attrs={'class': '_3JgI-GOrkmyIeDeyzXdyUD'}), 'a', ret='href' )[0]
-            except:
-                self.log(' Upss ')
+            author = image_data.group('author')
+            if author.startswith( 'reddit_' ):
                 continue
-
-            if not img:
-                self.log('no image or not a jpg')
-                continue
-            else:
-                if img[0] != '/':
-                    # only follow reddit images, not other 'promoted' posts:
+            pic = image_data.group('pic')
+            if ( 'external-preview.redd.it' not in pic and 'i.redd.it' not in pic ):
+                pic = re.search( r'(https://external-preview.redd.it/[^"]+)', image_data.group('urls') )
+                if pic:
+                    pic = pic.group(0)
+                else:
                     continue
-                img = self.URL_PREFIX + img
-                pic = self._get_html( img )
-                try:
-                    pic = parseDOM( parseDOM( pic, 'div', attrs={'class': '_3Oa0THmZ3f5iZXAQ0hBJ0k[^\'"]*'}), 'a', ret='href' )[0]
-                    pic = replaceHTMLCodes ( pic ) # some '&amp;'' may be in urls
-                except:
-                    continue
+            pic = pic.replace( '\u0026', '&' )
+            pic_time = image_data.group('pic_time')
+            # convert Unix time to UTC:
+            pic_time = time.strftime( "%Y-%m-%d %H:%M", time.localtime( int( int( pic_time ) / 1000 ) ) )
 
-            try:
-                author = parseDOM( photo, 'a', {'class': '_2tbHP6ZydRpjI44J3syuqC s1461iz-1 gWXVVu'} )
-                if author:
-                    author = author[0].encode('utf-8', 'ignore')
-
-                pic_time = parseDOM( photo, 'a', {'class': '_3jOxDPIQ0KaOWpzvSQo-1s'} )[0].encode('utf-8', 'ignore')
-            except:
-                author=''
-                pic_time=''
-
-            if author:
-                description+="\n\n(Author: " + author + ")"
-            if pic_time:
-                description+="\n(@ " + pic_time + ")"
+            description = image_data.group('title').decode('utf-8', 'ignore')
+            description+= "\n\nAuthor: " + author
+            description+= "  @ " + pic_time
 
             self._photos[album_url].append({
-                'title': '%d - %s' % (id + 1, album_title),
+                'title': album_title,
                 'album_title': album_title,
                 'photo_id': id,
                 'author': author,
