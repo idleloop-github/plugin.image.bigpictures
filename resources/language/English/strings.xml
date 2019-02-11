@@ -23,6 +23,7 @@
     <string id="32120">Show Arrows</string>
     <string id="32130">Randomize slideshow</string>
     <string id="32140">Album download path</string>
+    <string id="32150">Save images description in EXIF (JPEG)</string>
 
     <!-- Settings categories -->
     <string id="32200">Help</string>

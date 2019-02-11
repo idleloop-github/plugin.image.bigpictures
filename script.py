@@ -27,12 +27,18 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 
+import lib.piexif as piexif
+import lib.piexif.helper as piexif_helper
+
 from lib.thebigpictures import ScraperManager, ALL_SCRAPERS
 
 addon = xbmcaddon.Addon()
 addon_path = addon.getAddonInfo('path')
 addon_name = addon.getAddonInfo('name')
 
+SAVE_DESCRIPTION_IN_EXIF = False
+if (addon.getSetting( 'save_description_in_exif') == 'true'):
+    SAVE_DESCRIPTION_IN_EXIF = True
 
 class Downloader(object):
 
@@ -73,6 +79,17 @@ class Downloader(object):
             except IOError, e:
                 self.log('ERROR: "%s"' % str(e))
                 break
+            # for JPEG images, save description in EXIF
+            if ( SAVE_DESCRIPTION_IN_EXIF and
+                re.match( r'jpe?g', filename.rsplit('.', 1)[-1], flags=re.IGNORECASE )
+                ):
+                self.log('Adding EXIF UserComment')
+                user_comment = piexif_helper.UserComment.dump(
+                    photo['description'] + ' (' + photo['title'] + ')', encoding="unicode" )
+                exif_dict = piexif.load( filename )
+                exif_dict["Exif"][piexif.ExifIFD.UserComment] = user_comment
+                exif_bytes = piexif.dump(exif_dict)
+                piexif.insert( exif_bytes, filename )
             self.log('Done')
             if self.pDialog.iscanceled():
                 self.log('Canceled')

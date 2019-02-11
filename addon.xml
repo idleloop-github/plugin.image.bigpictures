@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.image.bigpictures" name="The Big Picture" version="4.3.2" provider-name="idleloop, forked from Tristan Fischer (sphere@dersphere.de)">
+<addon id="script.image.bigpictures" name="The Big Picture" version="4.3.3" provider-name="idleloop, forked from Tristan Fischer (sphere@dersphere.de)">
     <requires>
         <import addon="xbmc.python" version="2.1.0"/>
         <import addon="script.module.parsedom" version="2.5.2"/>
@@ -18,7 +18,7 @@
         <source>https://github.com/idleloop-github/script.image.bigpictures</source>
         <forum>http://forum.xbmc.org/showthread.php?tid=97605</forum>
         <email>idleloop@yahoo.com</email>
-        <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+        <license>GNU GENERAL PUBLIC LICENSE. Version 3, June 2007</license>
         <summary lang="be">Photojournalism</summary>
         <summary lang="bg">Фотожурналистика</summary>
         <summary lang="ca">Fotoperiodisme</summary>

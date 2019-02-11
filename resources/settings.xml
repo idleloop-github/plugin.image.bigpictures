@@ -17,6 +17,7 @@
         <setting id="show_arrows" type="bool" label="32120" default="true"/>
         <setting id="random_slideshow" type="bool" label="32130" default="false"/>
         <setting id="download_path" type="folder" source="files" label="32140"  option="writeable" default=""/>
+        <setting id="save_description_in_exif" type="bool" label="32150" default="true"/>
     </category>
     <category label="32202">
         <setting id="enable_TheBigPictures" type="bool" label="32400" default="true"/>

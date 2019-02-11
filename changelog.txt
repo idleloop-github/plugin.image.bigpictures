@@ -1,3 +1,7 @@
+4.3.3 (02.2019)
+  added option to save images description in jpeg's EXIF
+    using piexif (//pypi.org/project/piexif/)
+
 4.3.2 (02.2019)
   reddit scraping improved
 

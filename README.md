@@ -12,7 +12,7 @@ This addon provides beautiful albums and photos from some nice photojournalism w
 
 ### Installation
 
-* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v4.3.2/script.image.bigpictures-4.3.2.zip).   
+* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v4.3.3/script.image.bigpictures-4.3.3.zip).   
 * Install on Kodi: Add-ons / Download / .. / Install from zip file / *and choose the zip file*   
 
 ### History of changes
@@ -24,10 +24,12 @@ See [changelog.txt](https://github.com/idleloop-github/script.image.bigpictures/
 [idleloop](https://github.com/idleloop-github) -at- yahoo.com   
 BTC: 1GX726he5TNgnDuG4qG9zrM6CSN7uyga6F
 
-### Original plugin author (until v1.2.0 & v4.2.0):
+### Original plugin author (until v4.2.0):
 
 [Tristan Fischer (dersphere)](https://github.com/dersphere)   
 
 ### License
 
-GPL v3
+* [GPL v3](https://github.com/idleloop-github/script.image.bigpictures/blob/master/LICENSE.txt)
+* [piexif](https://pypi.org/project/piexif/) licensed under [MIT license](https://github.com/idleloop-github/script.image.bigpictures/blob/master/lib/piexif/LICENSE.txt)
+

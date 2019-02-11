@@ -23,6 +23,7 @@
     <string id="32120">显示箭头</string>
     <string id="32130">随机幻灯片</string>
     <string id="32140">相册下载目录</string>
+    <string id="32150">在EXIF-JPEG中保存图像说明</string>
 
     <!-- Settings categories -->
     <string id="32200">帮助</string>

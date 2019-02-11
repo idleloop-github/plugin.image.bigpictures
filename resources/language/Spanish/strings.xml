@@ -23,6 +23,7 @@
     <string id="32120">Mostrar Flechas</string>
     <string id="32130">Presentación aleatoria</string>
     <string id="32140">Ruta de descarga del álbum</string>
+    <string id="32150">Guardar la descripción de las imágenes en EXIF (JPEG)</string>
 
     <!-- Settings categories -->
     <string id="32200">Ayuda</string>
