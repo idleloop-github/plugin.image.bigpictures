@@ -16,6 +16,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+#
+#    Modified by idleloop: v1.2.4 (2017), v1.2.5 (2019), v1.2.6
+#    //github.com/idleloop-github/script.image.bigpictures
+#
 
 import os
 import re

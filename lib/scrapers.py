@@ -18,11 +18,10 @@
 #
 #    ..........................................
 #
-#    Modified by idleloop@yahoo.com: 2017, 2018
+#    Modified by idleloop@yahoo.com: 2017, 2018, 2019
 #
 
 import re
-import json
 import urllib2
 import time
 from random import randint
@@ -469,28 +468,42 @@ class Reddit(BasePlugin):
                 'retrieving reddit images ...',
                 xbmcgui.NOTIFICATION_INFO, int(2000) )
 
+        # https://stackoverflow.com/questions/44927922/replace-all-unicode-codes-with-characters-in-python
+        unicode_escape = re.compile( r'\\u00([a-fA-F0-9]{2})' )
+        def replace_unicode_codes(m):
+            return ''.join(m.groups('')).decode("hex")
+
         html = self._get_html( album_url )
         album_title = parseDOM( html, 'title' )[0].decode('utf-8', 'ignore')
         json_data = parseDOM( html, 'script', attrs={'id': 'data'} )[0].encode('utf-8', 'ignore')
-        json_regex = r'"author":"(?P<author>[^"]+)".+?"content":"(?P<pic>[^"]+)"(?P<urls>.+?)"created":(?P<pic_time>\d+).+?"title":"(?P<title>[^"]+)"'
+        # try to replace some unicode codes of type \u00xy :
+        json_data = unicode_escape.sub( replace_unicode_codes, json_data )
+        json_regex = r'"author":"(?P<author>[^"]+)".+?"content":"(?P<pic>[^"]+)"(?P<urls>.+?)"created":(?P<pic_time>\d+).+?"title":"(?P<title>.+?)",'
         for image_data in re.finditer( json_regex, json_data ):
-
             author = image_data.group('author')
-            if author.startswith( 'reddit_' ):
+            # check that the retrieved line is not an anomalous one
+            # (this reddit js code can be broken, with registers without content field):
+            duplicate_author = re.search( r'"author":.+"author":"(?P<author>[^"]+)"', image_data.group(0) )
+            if duplicate_author:
+                author = duplicate_author.group('author')
+            if author.startswith( 'reddit_' ) or author == 'redditads':
                 continue
             pic = image_data.group('pic')
-            if ( 'external-preview.redd.it' not in pic and 'i.redd.it' not in pic ):
-                pic = re.search( r'(https://external-preview.redd.it/[^"]+)', image_data.group('urls') )
-                if pic:
-                    pic = pic.group(0)
-                else:
-                    continue
+            try:
+                if ( 'external-preview.redd.it' not in pic and 'i.redd.it' not in pic ):
+                    pic = re.search( r'(https://external-preview.redd.it/[^"]+)', image_data.group('urls') )
+                    if pic:
+                        pic = pic.group(0)
+                    else:
+                        continue
+            except:
+                continue
             pic = pic.replace( '\u0026', '&' )
             pic_time = image_data.group('pic_time')
             # convert Unix time to UTC:
             pic_time = time.strftime( "%Y-%m-%d %H:%M", time.localtime( int( int( pic_time ) / 1000 ) ) )
 
-            description = image_data.group('title').decode('utf-8', 'ignore')
+            description = image_data.group('title').decode('utf-8', 'ignore').replace( '\\' , '' )
             description+= "\n\nAuthor: " + author
             description+= "  @ " + pic_time
 

@@ -1,3 +1,6 @@
+4.3.4 (02.2019)
+  patched username extraction in reddit images
+
 4.3.3 (02.2019)
   added option to save images description in jpeg's EXIF
     using piexif (//pypi.org/project/piexif/)

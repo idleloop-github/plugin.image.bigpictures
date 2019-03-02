@@ -12,7 +12,7 @@ This addon provides beautiful albums and photos from some nice photojournalism w
 
 ### Installation
 
-* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v4.3.3/script.image.bigpictures-4.3.3.zip).   
+* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v4.3.4/script.image.bigpictures-4.3.4.zip).   
 * Install on Kodi: Add-ons / Download / .. / Install from zip file / *and choose the zip file*   
 
 ### History of changes
