@@ -59,6 +59,11 @@ class BasePlugin(object):
         self._id = _id
         self._parser = HTMLParser.HTMLParser()
 
+    # https://stackoverflow.com/questions/44927922/replace-all-unicode-codes-with-characters-in-python
+    unicode_escape = re.compile( r'\\u00([a-fA-F0-9]{2})' )
+    def replace_unicode_codes(self, m):
+        return ''.join(m.groups('')).decode("hex")
+
     def get_albums(self):
         return self._albums or self._get_albums()
 
@@ -167,7 +172,7 @@ class TheBigPictures(BasePlugin):
 
     def _get_photos(self, album_url):
         self._photos[album_url] = []
-        html = self._get_html(album_url)
+        html = self._get_html(album_url).decode('utf-8', 'ignore')
         album_title = parseDOM(html, 'title')[0]
         images = parseDOM(html, 'div', attrs={'class': 'photo'})
         descs = parseDOM(html, 'article', attrs={'class': 'pcaption'})
@@ -175,11 +180,32 @@ class TheBigPictures(BasePlugin):
             pic = urllib2.quote(parseDOM(photo, 'img', ret='src')[0])
             description = stripTags(self._parser.unescape(parseDOM(descs[_id], 'div', attrs={'class': 'gcaption geor'})[0]))
             self._photos[album_url].append({
-                'title': '%d - %s' % (_id + 1, album_title),
+                'title': u'%d - %s' % (_id + 1, album_title),
                 'album_title': album_title,
                 'photo_id': _id,
                 'pic': 'http:' + pic,
-                'description': description,
+                'description': description.encode('utf-8', 'ignore').decode('utf-8', 'ignore'),
+                'album_url': album_url
+                })
+        if (len(self._photos[album_url]) > 1):
+            return self._photos[album_url]
+        # second attempt: page is javascript-generated coding
+        self._photos[album_url] = []
+        json_data = html
+        json_regex = r'"_id":"[^"]+".*?"originalName":"(?P<pic>[^"]+)".*?"takenOn":"(?P<pic_date>[^"]+)".*?"address":\{(?P<address>[^\}]+).+?"caption":"(?P<caption>[^"]+)"'
+        for _id, section in enumerate(re.finditer(json_regex, json_data)):
+            pic = section.group('pic')
+            # use (as webpages) source for resizable images, with 1920 as width:
+            pic = pic.replace('https://arcmigration-prdweb.bostonglobe.com/r','https://c.o0bg.com/rf/image_1920w')
+            description = section.group('caption')
+            description += "\n( " + section.group('address').replace('"','').replace(',',', ').replace(':',': ').replace('_',' ')
+            description += " ) @" + section.group('pic_date')
+            self._photos[album_url].append({
+                'title': u'%d - %s' % (_id + 1, album_title),
+                'album_title': album_title,
+                'photo_id': _id,
+                'pic': pic,
+                'description': description.encode('utf-8', 'ignore').decode('utf-8', 'ignore'),
                 'album_url': album_url
                 })
 
@@ -468,16 +494,11 @@ class Reddit(BasePlugin):
                 'retrieving reddit images ...',
                 xbmcgui.NOTIFICATION_INFO, int(2000) )
 
-        # https://stackoverflow.com/questions/44927922/replace-all-unicode-codes-with-characters-in-python
-        unicode_escape = re.compile( r'\\u00([a-fA-F0-9]{2})' )
-        def replace_unicode_codes(m):
-            return ''.join(m.groups('')).decode("hex")
-
         html = self._get_html( album_url )
         album_title = parseDOM( html, 'title' )[0].decode('utf-8', 'ignore')
         json_data = parseDOM( html, 'script', attrs={'id': 'data'} )[0].encode('utf-8', 'ignore')
         # try to replace some unicode codes of type \u00xy :
-        json_data = unicode_escape.sub( replace_unicode_codes, json_data )
+        json_data = self.unicode_escape.sub( self.replace_unicode_codes, json_data )
         json_regex = r'"author":"(?P<author>[^"]+)".+?"content":"(?P<pic>[^"]+)"(?P<urls>.+?)"created":(?P<pic_time>\d+).+?"title":"(?P<title>.+?)",'
         for image_data in re.finditer( json_regex, json_data ):
             author = image_data.group('author')

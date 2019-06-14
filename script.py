@@ -89,7 +89,7 @@ class Downloader(object):
                 ):
                 self.log('Adding EXIF UserComment')
                 user_comment = piexif_helper.UserComment.dump(
-                    photo['description'] + ' (' + photo['title'] + ')', encoding="unicode" )
+                    photo['description'] + u' (' + photo['title'] + u')', encoding="unicode" )
                 exif_dict = piexif.load( filename )
                 exif_dict["Exif"][piexif.ExifIFD.UserComment] = user_comment
                 exif_bytes = piexif.dump(exif_dict)

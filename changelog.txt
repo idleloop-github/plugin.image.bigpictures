@@ -1,3 +1,6 @@
+4.3.5 (06.2019)
+  patched bostonglobe.com scraper
+
 4.3.4 (02.2019)
   patched username extraction in reddit images
 
