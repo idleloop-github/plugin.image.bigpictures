@@ -18,7 +18,7 @@
 #
 #    ..........................................
 #
-#    Modified by idleloop@yahoo.com: 2017, 2018, 2019
+#    Modified by idleloop@yahoo.com: 2017, 2018, 2019, 2021
 #
 
 import re
@@ -145,30 +145,60 @@ class AtlanticInFocus(BasePlugin):
 
     def _get_albums(self):
         self._albums = []
-        url = 'https://www.theatlantic.com/infocus/'
+        home_url = 'https://www.theatlantic.com'
+        url = home_url + '/photo/'
         html = self._get_html(url)
-        pattern = r'@media\(min-width:\s*1632px\)\s*{\s*#river1 \.lead-image\s*{\s*background-image:\s*url\((.+?)\)'
-        for _id, li in enumerate(parseDOM(html, 'li', attrs={'class': 'article'})):
-            headline = parseDOM(li, 'h1')
-            title = parseDOM( headline, 'a')[0]
+
+        css = parseDOM( html, 'style', attrs={ 'type': 'text/css' } )[0]
+        pictures = re.findall( r'#river(?P<river>[0-9]+) \.lead-image.?\{.{1,10}background-image: url\("(?P<url>.+?/.+?x(?P<height>[0-9]+)[^"]+)"', css, re.DOTALL )
+        self.log( list(pictures) )
+
+        containers  = parseDOM( html, 'div', attrs={ 'id': 'home-hero' } )  # header container
+        containers += parseDOM( html, 'li',  attrs={ 'class': 'article' } ) # <li> containers
+        for _id, li in enumerate( containers ):
+            # this is the header container (<div id="home-hero">)
+            title = parseDOM( li, 'h1' )[0]
+            try:
+                # this is one of the <li id="river#"> containers
+                title = parseDOM( title, 'a' )[0]
+            except Exception:
+                pass
             # add date to description:
-            date = parseDOM( parseDOM(li, 'ul'), 'li')[1]
-            match = re.search(pattern.replace('river1', 'river%d' % (_id + 1)), html)
-            if match:
-                self._albums.append({
-                   'title': title,
-                   'album_id': _id,
-                   'pic': match.group(1),
-                   'description': date + "\n" + stripTags(self._parser.unescape(parseDOM(li, 'p', attrs={'class': 'dek'})[0])),
-                   'album_url': 'https://www.theatlantic.com' + parseDOM(headline, 'a', ret='href')[0]
-                   })
+            try:
+                date = parseDOM( parseDOM(li, 'ul'), 'li', attrs={'class': 'date'} )[0]
+            except Exception:
+                date = ''
+            try:
+                # this is the header container (<div id="home-hero">)
+                picture = parseDOM( li, 'img', ret='src' )[0]
+            except Exception:
+                # this is one of the <li id="river#"> containers
+                resolution = 0
+                for picture_line in pictures:
+                    if picture_line[0] == str(_id):
+                        # take the last available resolution, which is the greater one (hopefully)
+                        if resolution < picture_line[2]:
+                            picture = picture_line[1]
+                            resolution = picture_line[2]
+            try:
+                description = parseDOM(li, 'p', attrs={'class': 'dek'})[0]
+            except Exception:
+                # description (<p></p>) may not exists:
+                description = title
+            self._albums.append({
+                'title': title,
+                'album_id': _id,
+                'pic': picture,
+                'description': date + "\n" + stripTags( self._parser.unescape( description ) ),
+                'album_url': home_url + parseDOM(li, 'a', ret='href')[0]
+                })
 
         return self._albums
 
     def _get_photos(self, album_url):
         self._photos[album_url] = []
         html = self._get_html(album_url)
-        pattern = r'data-srcset=\"(.+?)\"'
+        pattern = r'source data-srcset=\"(.+?)\"'
         match_image = re.findall(pattern, html)
         album_title = self._parser.unescape(parseDOM(html, 'title')[0])
         for _id, p in enumerate(parseDOM(html, 'p', attrs={'class': 'caption'})):
