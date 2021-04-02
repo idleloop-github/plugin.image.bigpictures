@@ -337,7 +337,7 @@ class Reddit(BasePlugin):
         self._albums.append({
             'title': 'EarthPorn',
             'album_id': 1,
-            'pic': 'https://styles.redditmedia.com/t5_2sbq3/styles/communityIcon_0kgik2jq6y301.png',
+            'pic': 'https://styles.redditmedia.com/t5_2sbq3/styles/communityIcon_63gyqtn0h9v41.png',
             'description': 'Pictures of the earth',
             'album_url': self.URL_PREFIX + '/r/EarthPorn'}
         )
@@ -427,20 +427,25 @@ class Reddit(BasePlugin):
         json_data = parseDOM( html, 'script', attrs={'id': 'data'} )[0].encode('utf-8', 'ignore')
         # try to replace some unicode codes of type \u00xy :
         json_data = self.unicode_escape.sub( self.replace_unicode_codes, json_data )
-        json_regex = r'"author":"(?P<author>[^"]+)".+?"content":"(?P<pic>[^"]+)"(?P<urls>.+?)"created":(?P<pic_time>\d+).+?"title":"(?P<title>.+?)",'
+        # there may be no "content" tag in "models" array, so it'll be extracted later:
+        json_regex = r'"(?P<id>[^"]+)":{"id":"(?P=id)".+?"title":"(?P<title>[^"]+)","author":"(?P<author>[^"]+)".+?"domain":"(?P<domain>[^"]+)".+?"isSponsored":(?P<sponsored>[^,]+),(?P<data>.+?)"created":(?P<pic_time>\d+),'
         for image_data in re.finditer( json_regex, json_data ):
-            author = image_data.group('author')
-            # check that the retrieved line is not an anomalous one
-            # (this reddit js code can be broken, with registers without content field):
-            duplicate_author = re.search( r'"author":.+"author":"(?P<author>[^"]+)"', image_data.group(0) )
-            if duplicate_author:
-                author = duplicate_author.group('author')
-            if author.startswith( 'reddit_' ) or author == 'redditads':
+            domain = image_data.group('domain')
+            if ( domain == 'reddit.com' or domain.startswith('self.') ):
                 continue
-            pic = image_data.group('pic')
+            author = image_data.group('author')
+            # remove registers with adverstisments
+            if image_data.group('sponsored') == 'true':
+                continue
+            secoundary_regex = r'("content":"(?P<pic>[^"]+)"),(?P<urls>.+?)'
+            secoundary_data = re.search( secoundary_regex, image_data.group('data') )
+            try:
+                pic = secoundary_data.group('pic')
+            except:
+                continue
             try:
                 if ( 'external-preview.redd.it' not in pic and 'i.redd.it' not in pic ):
-                    pic = re.search( r'(https://external-preview.redd.it/[^"]+)', image_data.group('urls') )
+                    pic = re.search( r'(https://external-preview.redd.it/[^"]+)', secoundary_data.group('urls') )
                     if pic:
                         pic = pic.group(0)
                     else:
