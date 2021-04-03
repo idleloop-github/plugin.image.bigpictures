@@ -20,7 +20,6 @@
         <setting id="save_description_in_exif" type="bool" label="32150" default="true"/>
     </category>
     <category label="32202">
-        <setting id="enable_TheBigPictures" type="bool" label="32400" default="true"/>
         <setting id="enable_AtlanticInFocus" type="bool" label="32401" default="true"/>
         <setting id="enable_TotallyCoolPix" type="bool" label="32404" default="true"/>
         <setting id="enable_NewYorkTimesLens" type="bool" label="32406" default="true"/>
