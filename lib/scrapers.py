@@ -41,9 +41,9 @@ RETRY_TIME = 5.0
 
 ALL_SCRAPERS = (
     'AtlanticInFocus',
+    'Reddit',
     'TotallyCoolPix',
     'NewYorkTimesLens',
-    'Reddit',
 )
 
 

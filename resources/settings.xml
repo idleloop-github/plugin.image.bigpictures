@@ -21,8 +21,8 @@
     </category>
     <category label="32202">
         <setting id="enable_AtlanticInFocus" type="bool" label="32401" default="true"/>
-        <setting id="enable_TotallyCoolPix" type="bool" label="32404" default="true"/>
-        <setting id="enable_NewYorkTimesLens" type="bool" label="32406" default="true"/>
         <setting id="enable_Reddit" type="bool" label="32407" default="true"/>
+        <setting id="enable_TotallyCoolPix" type="bool" label="32404" default="false"/>
+        <setting id="enable_NewYorkTimesLens" type="bool" label="32406" default="false"/>
     </category>
 </settings>
