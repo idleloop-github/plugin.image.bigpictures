@@ -41,6 +41,7 @@ RETRY_TIME = 5.0
 
 ALL_SCRAPERS = (
     'AtlanticInFocus',
+    'TimePhotography',
     'Reddit',
     'TotallyCoolPix',
     'NewYorkTimesLens',
@@ -151,7 +152,6 @@ class AtlanticInFocus(BasePlugin):
 
         css = parseDOM( html, 'style', attrs={ 'type': 'text/css' } )[0]
         pictures = re.findall( r'#river(?P<river>[0-9]+) \.lead-image.?\{.{1,10}background-image: url\("(?P<url>.+?/.+?x(?P<height>[0-9]+)[^"]+)"', css, re.DOTALL )
-        self.log( list(pictures) )
 
         containers  = parseDOM( html, 'div', attrs={ 'id': 'home-hero' } )  # header container
         containers += parseDOM( html, 'li',  attrs={ 'class': 'article' } ) # <li> containers
@@ -211,6 +211,57 @@ class AtlanticInFocus(BasePlugin):
                    'description': stripTags(self._parser.unescape(match_description.group(1))),
                    'album_url': album_url
                    })
+
+        return self._photos[album_url]
+
+
+class TimePhotography(BasePlugin):
+
+    _title = 'Time - Photography'
+
+    def _get_albums(self):
+        self._albums = []
+        home_url = 'https://time.com'
+        url = home_url + '/tag/photography/'
+        html = self._get_html(url)
+
+        articles  = parseDOM( html, 'article' )
+        for _id, article in enumerate( articles ):
+            title = parseDOM( article, 'a' )[1]
+            picture = parseDOM( article, 'div', ret='data-src' )[0]
+            description = parseDOM(article, 'div', attrs={'class': 'summary margin-8-bottom desktop-only'})[0]
+            self._albums.append({
+                'title': title,
+                'album_id': _id,
+                'pic': picture,
+                'description': stripTags( self._parser.unescape( description ) ),
+                'album_url': home_url + parseDOM(article, 'a', ret='href')[0]
+                })
+
+        return self._albums
+
+    def _get_photos(self, album_url):
+        self._photos[album_url] = []
+        html = self._get_html(album_url)
+        album_title = re.findall( r'"headline":"(?P<title>[^"]+)"', html )[0]
+        images  = parseDOM( html, 'div', attrs={'class': 'component lazy-image lead-media marquee_large_2x.*'}, ret='data-src' )
+        images += parseDOM( parseDOM( html, 'div', attrs={'class': 'image-wrapper'}), 'div', attrs={'class': 'component lazy-image.*'}, ret='data-src' )
+        if len(images) == 0:
+            # if there are no images that's because the article contains just a video: so show its poster only
+            images = [ parseDOM( html, 'video', ret='poster' )[0] ]
+            self.log( list(images) )
+            descriptions = [ '' ]
+        else:
+            descriptions  = parseDOM( html, 'div', attrs={'class': 'component lazy-image lead-media marquee_large_2x.*'}, ret='data-alt' )
+            descriptions += parseDOM( parseDOM( html, 'div', attrs={'class': 'image-wrapper'}), 'div', attrs={'class': 'component lazy-image.*'}, ret='data-alt' )
+        for _id, image in enumerate( images ):
+            self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
+                'album_title': album_title,
+                'photo_id': _id,
+                'pic': image,
+                'description': stripTags( self._parser.unescape( descriptions[_id] ) ),
+                'album_url': album_url
+                })
 
         return self._photos[album_url]
 
