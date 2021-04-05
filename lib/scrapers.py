@@ -25,7 +25,7 @@ import re
 import urllib2
 import time
 from random import randint
-import HTMLParser
+import HTMLParser # HTMLParser().unescape()
 
 try:
     import xbmc
@@ -42,6 +42,7 @@ RETRY_TIME = 5.0
 ALL_SCRAPERS = (
     'AtlanticInFocus',
     'TimePhotography',
+    'ReadingthePictures',
     'Reddit',
     'TotallyCoolPix',
     'NewYorkTimesLens',
@@ -186,7 +187,7 @@ class AtlanticInFocus(BasePlugin):
                 # description (<p></p>) may not exists:
                 description = title
             self._albums.append({
-                'title': title,
+                'title': self._parser.unescape( title ),
                 'album_id': _id,
                 'pic': picture,
                 'description': date + "\n" + stripTags( self._parser.unescape( description ) ),
@@ -205,7 +206,7 @@ class AtlanticInFocus(BasePlugin):
             match_description = re.search('<span>(.+?)</span>', p)
             if match_description:
                 self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
-                   'album_title': album_title,
+                   'album_title': self._parser.unescape( album_title ),
                    'photo_id': _id,
                    'pic': match_image[_id * 5],
                    'description': stripTags(self._parser.unescape(match_description.group(1))),
@@ -231,7 +232,7 @@ class TimePhotography(BasePlugin):
             picture = parseDOM( article, 'div', ret='data-src' )[0]
             description = parseDOM(article, 'div', attrs={'class': 'summary margin-8-bottom desktop-only'})[0]
             self._albums.append({
-                'title': title,
+                'title': self._parser.unescape( title ),
                 'album_id': _id,
                 'pic': picture,
                 'description': stripTags( self._parser.unescape( description ) ),
@@ -256,12 +257,96 @@ class TimePhotography(BasePlugin):
             descriptions += parseDOM( parseDOM( html, 'div', attrs={'class': 'image-wrapper'}), 'div', attrs={'class': 'component lazy-image.*'}, ret='data-alt' )
         for _id, image in enumerate( images ):
             self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
-                'album_title': album_title,
+                'album_title': self._parser.unescape( album_title ),
                 'photo_id': _id,
                 'pic': image,
                 'description': stripTags( self._parser.unescape( descriptions[_id] ) ),
                 'album_url': album_url
                 })
+
+        return self._photos[album_url]
+
+
+class ReadingthePictures(BasePlugin):
+
+    _title = 'Reading the Pictures .org'
+
+    def _get_albums(self):
+        self._albums = []
+        home_url = 'https://www.readingthepictures.org'
+        url = home_url + '/category/notes/'
+        html = self._get_html(url)
+
+        articles  = parseDOM( html, 'div', attrs={'class': 'article'} )
+        for _id, article in enumerate( articles ):
+            title = parseDOM( article, 'a', ret='title' )[0]
+            picture = parseDOM( article, 'img', ret='src' )[0]
+            description = parseDOM( article, 'p' )[0]
+            self._albums.append({
+                'title': self._parser.unescape( title ),
+                'album_id': _id,
+                'pic': picture,
+                'description': stripTags( self._parser.unescape( description ) ),
+                'album_url': parseDOM(article, 'a', ret='href')[0]
+                })
+
+        return self._albums
+
+    def _get_photos(self, album_url):
+        self._photos[album_url] = []
+        html = self._get_html(album_url)
+        album_title = parseDOM( html, 'meta', attrs={'property': 'og:title'}, ret='content' )[0]
+        alternative_distribution = 0
+        images = parseDOM( html, 'div', attrs={'class': 'wp-caption alignnone'} )
+        if len(images) > 0:
+            # may be alternative div classes are used:          
+            alternative_distribution = 1
+        else:
+            images  = parseDOM( html, 'section', attrs={'class': 'single-intro wysiwyg'} )
+            images += parseDOM( html, 'section', attrs={'class': 'single-large-photo'} )
+        for _id, image in enumerate( images ):
+            try:
+                if alternative_distribution == 0:
+                    try:
+                        description = parseDOM( image, 'div', attrs={'class': 'caption'} )[0] # description for first image
+                    except Exception:
+                        description = parseDOM( image, 'figcaption' )[0] # description for images after the first one
+                else:
+                    description = parseDOM( image, 'p', attrs={ 'class': 'wp-caption-text' })[0]
+                # clean description:
+                try:
+                    description = stripTags( description ).replace( '&nbsp;', '' ).replace( chr(9), '' )
+                    description_items = re.search( r'^(?P<author>.+)Caption: *(?P<caption>.+)', description, re.DOTALL )
+                    description = re.sub( r'\n+', '', description_items.group('caption') ) + "\n\n" + \
+                                    description_items.group('author')
+                except Exception:
+                    description = ''
+                picture = parseDOM( image, 'img', ret='src' )[0]
+                if alternative_distribution == 1:
+                    picture = re.search( r'(?P<pic>https://[^ ]+) [^ ]+?$', parseDOM( image, 'img', ret='srcset' )[0] ).group('pic')
+                self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
+                    'album_title': self._parser.unescape( album_title ),
+                    'photo_id': _id,
+                    'pic': picture,
+                    'description': self._parser.unescape( description ),
+                    'album_url': album_url
+                    })
+            except Exception:
+                continue
+
+        if len( self._photos[album_url] ) == 0:
+            self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
+                'album_title': album_title,
+                'photo_id': _id,
+                'pic': 'https://www.readingthepictures.org/wp-content/uploads/2019/04/1_LAT_Mueller.jpg',
+                'description': 'no more images here !',
+                'album_url': album_url
+                })
+            if XBMC_MODE:
+                dialog = xbmcgui.Dialog()
+                dialog.notification( 'Reading the Pictures .org :',
+                    'no more images here !',
+                    xbmcgui.NOTIFICATION_INFO, int(2000) )
 
         return self._photos[album_url]
 
