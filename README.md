@@ -4,15 +4,14 @@
 
 This addon provides beautiful albums and photos from some nice photojournalism websites:   
 
-- [Boston.com: The Big Picture](https://www.bostonglobe.com/news/bigpicture)
 - [The Atlantic: In Focus](https://www.theatlantic.com/infocus/)
-- [TotallyCoolPix.com](https://totallycoolpix.com)
-- [NewYorkTimes.com: Lens Blog](https://lens.blogs.nytimes.com/)
+- [TimePhotography](https://time.com/tag/photography/)
+- [ReadingthePictures](https://www.readingthepictures.org/category/notes/)
 - [Reddit: (11 categories)](https://www.reddit.com/)
 
 ### Installation
 
-* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v4.3.5/script.image.bigpictures-4.3.5.zip).   
+* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v5.0/script.image.bigpictures-5.0.zip).   
 * Install on Kodi: Add-ons / Download / .. / Install from zip file / *and choose the zip file*   
 
 ### History of changes

@@ -1,3 +1,7 @@
+5.0 (04.2021)
+  all new contents: scrapers added, updated and removed
+  addon moved from script.image.bigpictures plugin.image.bigpictures
+
 4.3.5 (06.2019)
   patched bostonglobe.com scraper
 
