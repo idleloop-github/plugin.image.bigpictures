@@ -150,7 +150,7 @@ class AtlanticInFocus(BasePlugin):
         html = self._get_html(url)
 
         css = parseDOM( html, 'style', attrs={ 'type': 'text/css' } )[0]
-        pictures = re.finditer( r'#river(?P<river>[0-9]+) \.lead-image.?\{.{1,10}background-image: url\("(?P<url>.+?/.+?x(?P<height>[0-9]+)[^"]+)"', css, re.DOTALL )
+        pictures = re.findall( r'#river(?P<river>[0-9]+) \.lead-image.?\{.{1,10}background-image: url\("(?P<url>.+?/.+?x(?P<height>[0-9]+)[^"]+)"', css, re.DOTALL )
 
         containers  = parseDOM( html, 'div', attrs={ 'id': 'home-hero' } )  # header container
         containers += parseDOM( html, 'li',  attrs={ 'class': 'article' } ) # <li> containers
@@ -174,12 +174,11 @@ class AtlanticInFocus(BasePlugin):
                 # this is one of the <li id="river#"> containers
                 resolution = 0
                 for picture_line in pictures:
-                    self.log(picture_line)
-                    if picture_line.group('river') == str(_id):
+                    if picture_line[0] == str(_id):
                         # take the last available resolution, which is the greater one (hopefully)
-                        if resolution < picture_line.group('height'):
-                            picture = picture_line.group('url')
-                            resolution = picture_line.group('height')
+                        if resolution < picture_line[2]:
+                            picture = picture_line[1]
+                            resolution = picture_line[2]
             try:
                 description = parseDOM(li, 'p', attrs={'class': 'dek'})[0]
             except Exception:
