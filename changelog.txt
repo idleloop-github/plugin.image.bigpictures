@@ -1,3 +1,6 @@
+5.1 (04.2021)
+  patched error retrieving images for `The Atlantic´
+
 5.0 (04.2021)
   all new contents: scrapers added, updated and removed
   addon moved from script.image.bigpictures plugin.image.bigpictures
