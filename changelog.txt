@@ -1,3 +1,7 @@
+5.2 (04.2021)
+  added scraper for BBC News In Pictures
+  minor changes
+
 5.1 (04.2021)
   patched error retrieving images for `The Atlantic´
 
