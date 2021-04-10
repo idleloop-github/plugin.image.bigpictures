@@ -7,6 +7,7 @@ This addon provides beautiful albums and photos from some nice photojournalism w
 - [The Atlantic: In Focus](https://www.theatlantic.com/infocus/)
 - [TimePhotography](https://time.com/tag/photography/)
 - [ReadingthePictures](https://www.readingthepictures.org/category/notes/)
+- [BBC News In Pictures](https://www.bbc.com/news/in_pictures)
 - [Reddit: (11 categories)](https://www.reddit.com/)
 
 ### Installation
