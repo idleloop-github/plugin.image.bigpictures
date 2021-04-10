@@ -43,6 +43,7 @@ ALL_SCRAPERS = (
     'AtlanticInFocus',
     'TimePhotography',
     'ReadingthePictures',
+    'BBCNews',
     'Reddit',
 )
 
@@ -204,7 +205,7 @@ class AtlanticInFocus(BasePlugin):
             match_description = re.search('<span>(.+?)</span>', p)
             if match_description:
                 self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
-                   'album_title': self._parser.unescape( album_title ),
+                   'album_title': album_title,
                    'photo_id': _id,
                    'pic': match_image[_id * 5],
                    'description': stripTags(self._parser.unescape(match_description.group(1))),
@@ -242,20 +243,19 @@ class TimePhotography(BasePlugin):
     def _get_photos(self, album_url):
         self._photos[album_url] = []
         html = self._get_html(album_url)
-        album_title = re.findall( r'"headline":"(?P<title>[^"]+)"', html )[0]
-        images  = parseDOM( html, 'div', attrs={'class': 'component lazy-image lead-media marquee_large_2x.*'}, ret='data-src' )
-        images += parseDOM( parseDOM( html, 'div', attrs={'class': 'image-wrapper'}), 'div', attrs={'class': 'component lazy-image.*'}, ret='data-src' )
+        album_title = self._parser.unescape( re.findall( r'"headline":"(?P<title>[^"]+)"', html )[0] )
+        images  = parseDOM( html, 'div', attrs={'class': 'component lazy-image lead-media marquee_large_2x[^"]*'}, ret='data-src' )
+        images += parseDOM( parseDOM( html, 'div', attrs={'class': 'image-wrapper'}), 'div', attrs={'class': 'component lazy-image[^"]*'}, ret='data-src' )
         if len(images) == 0:
             # if there are no images that's because the article contains just a video: so show its poster only
             images = [ parseDOM( html, 'video', ret='poster' )[0] ]
-            self.log( list(images) )
             descriptions = [ '' ]
         else:
-            descriptions  = parseDOM( html, 'div', attrs={'class': 'component lazy-image lead-media marquee_large_2x.*'}, ret='data-alt' )
-            descriptions += parseDOM( parseDOM( html, 'div', attrs={'class': 'image-wrapper'}), 'div', attrs={'class': 'component lazy-image.*'}, ret='data-alt' )
+            descriptions  = parseDOM( html, 'div', attrs={'class': 'component lazy-image lead-media marquee_large_2x[^"]*'}, ret='data-alt' )
+            descriptions += parseDOM( parseDOM( html, 'div', attrs={'class': 'image-wrapper'}), 'div', attrs={'class': 'component lazy-image[^"]*'}, ret='data-alt' )
         for _id, image in enumerate( images ):
             self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
-                'album_title': self._parser.unescape( album_title ),
+                'album_title': album_title,
                 'photo_id': _id,
                 'pic': image,
                 'description': stripTags( self._parser.unescape( descriptions[_id] ) ),
@@ -293,7 +293,7 @@ class ReadingthePictures(BasePlugin):
     def _get_photos(self, album_url):
         self._photos[album_url] = []
         html = self._get_html(album_url)
-        album_title = parseDOM( html, 'meta', attrs={'property': 'og:title'}, ret='content' )[0]
+        album_title = self._parser.unescape( parseDOM( html, 'meta', attrs={'property': 'og:title'}, ret='content' )[0] )
         alternative_distribution = 0
         images = parseDOM( html, 'div', attrs={'class': 'wp-caption alignnone'} )
         if len(images) > 0:
@@ -323,7 +323,7 @@ class ReadingthePictures(BasePlugin):
                 if alternative_distribution == 1:
                     picture = re.search( r'(?P<pic>https://[^ ]+) [^ ]+?$', parseDOM( image, 'img', ret='srcset' )[0] ).group('pic')
                 self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
-                    'album_title': self._parser.unescape( album_title ),
+                    'album_title': album_title,
                     'photo_id': _id,
                     'pic': picture,
                     'description': self._parser.unescape( description ),
@@ -345,6 +345,76 @@ class ReadingthePictures(BasePlugin):
                 dialog.notification( 'Reading the Pictures .org :',
                     'no more images here !',
                     xbmcgui.NOTIFICATION_INFO, int(2000) )
+
+        return self._photos[album_url]
+
+
+class BBCNews(BasePlugin):
+
+    _title = 'BBC News In Pictures'
+
+    def _get_albums(self):
+        self._albums = []
+        home_url = 'https://www.bbc.com'
+        url = home_url + '/news/in_pictures'
+        html = self._get_html(url)
+
+        articles  = parseDOM( html, 'div', attrs={'class': 'gs-o-media__body'} )
+        pictures  = parseDOM( html, 'div', attrs={'class': \
+                        'gs-u-mb\+ gel-body-copy qa-post-body'} )
+        descriptions = parseDOM( html, 'div', attrs={'class': 'gel-5/8@l'} )
+        timestamp = parseDOM( html, 'span', attrs={'class': 'qa-post-auto-meta'} )
+        for _id, article in enumerate( articles ):
+            title = parseDOM( parseDOM( article, 'a' )[0], 'span')[0]
+            try:
+                picture = parseDOM( pictures[_id], 'img', ret='srcset' )[0]
+                picture = re.search( r', (?P<bigger_url>https://[^ ]+) \d+w$', picture ).group('bigger_url')
+                description = parseDOM( descriptions[_id], 'p' )[0]
+            except Exception:
+                continue
+            self._albums.append({
+                'title': self._parser.unescape( title ),
+                'album_id': _id,
+                'pic': picture,
+                'description': stripTags( self._parser.unescape( description ) ) + \
+                                "\n\nPosted @" + timestamp[_id],
+                'album_url': home_url + parseDOM(article, 'a', ret='href')[0]
+                })
+
+        return self._albums
+
+    def _get_photos(self, album_url):
+        self._photos[album_url] = []
+        html = self._get_html(album_url)
+        html = html.replace( 'srcSet', 'srcset' )
+        album_title = self._parser.unescape( parseDOM( html, 'title' )[0] )
+        pictures = parseDOM( html, 'img', attrs={'class': '.+Image[^"]+'}, ret='srcset' )
+        descriptions = parseDOM( html, 'figcaption' )
+        if ( len(descriptions) == 0 ):
+            descriptions = [''] * len(pictures)
+        id_picture = 0
+        for _id, description in enumerate( descriptions ):
+            try:
+                description = stripTags( self._parser.unescape( description ) ).\
+                                replace( 'image caption','' )
+                condition = True
+                while ( condition ):
+                    picture = pictures[id_picture]
+                    picture = re.search( r', (?P<bigger_url>https://[^ ]+) \d+w$', picture ).group('bigger_url')
+                    id_picture += 1
+                    if ( re.search( r'(transparent|line)[^\."]+\.png', picture ) == None ):
+                        condition = False
+                if ( description == '' and re.search( r'banner[^\."]+\.png', picture ) != None ):
+                    continue
+                self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
+                    'album_title': album_title,
+                    'photo_id': _id,
+                    'pic': picture,
+                    'description': self._parser.unescape( description ),
+                    'album_url': album_url
+                    })
+            except Exception:
+                continue
 
         return self._photos[album_url]
 
