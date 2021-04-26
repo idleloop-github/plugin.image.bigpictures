@@ -1,3 +1,7 @@
+5.3 (04.2021)
+  added scraper for Photojournalism Now
+  patch on retrieving image resolutions for AtlanticInFocus
+
 5.2 (04.2021)
   added scraper for BBC News In Pictures
   minor changes

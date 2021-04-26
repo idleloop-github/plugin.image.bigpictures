@@ -44,6 +44,7 @@ ALL_SCRAPERS = (
     'TimePhotography',
     'ReadingthePictures',
     'BBCNews',
+    'PhotojournalismNow',
     'Reddit',
 )
 
@@ -176,10 +177,10 @@ class AtlanticInFocus(BasePlugin):
                 resolution = 0
                 for picture_line in pictures:
                     if picture_line[0] == str(_id):
-                        # take the last available resolution, which is the greater one (hopefully)
-                        if resolution < picture_line[2]:
+                        # take the greater resolution
+                        if resolution < int(picture_line[2]):
                             picture = picture_line[1]
-                            resolution = picture_line[2]
+                            resolution = int(picture_line[2])
             try:
                 description = parseDOM(li, 'p', attrs={'class': 'dek'})[0]
             except Exception:
@@ -415,6 +416,64 @@ class BBCNews(BasePlugin):
                     })
             except Exception:
                 continue
+
+        return self._photos[album_url]
+
+
+class PhotojournalismNow(BasePlugin):
+
+    _title = 'Photojournalism Now'
+
+    def _get_albums(self):
+        self._albums = []
+        home_url = 'https://photojournalismnow43738385.wordpress.com'
+        url = home_url + '/'
+        html = self._get_html(url)
+
+        articles  = parseDOM( html, 'article' )
+        for _id, article in enumerate( articles ):
+            title = parseDOM( parseDOM( article, 'h1' )[0], 'a')[0]
+            picture = parseDOM( article, 'img', ret='src' )[0]
+            picture = re.search( r'^([^\?]+)', picture ).group(1)
+            description = parseDOM( article, 'p' )[0]
+            self._albums.append({
+                'title': self._parser.unescape( title ),
+                'album_id': _id,
+                'pic': picture,
+                'description': stripTags( self._parser.unescape( description ) ),
+                'album_url': parseDOM(article, 'a', ret='href')[0]
+                })
+
+        return self._albums
+
+    def _get_photos(self, album_url):
+        self._photos[album_url] = []
+        html = self._get_html(album_url)
+        album_title = self._parser.unescape( parseDOM( html, 'title' )[0] )
+        pictures = parseDOM( html, 'figure' )
+        for _id, picture in enumerate( pictures ):
+                try:
+                    image = parseDOM( picture, 'img', ret='srcset' )[0]
+                    image_resolutions = re.findall( r'(?P<url>https://[^ ]+) (?P<resolution>\d+)w', image )
+                    resolution = 0
+                    for image_line in image_resolutions:
+                        # take the greater resolution
+                        if resolution < int(image_line[1]):
+                            image = image_line[0]
+                            resolution = int(image_line[1])
+                    try:
+                        description = parseDOM( picture, 'figcaption' )[0]
+                    except Exception:
+                        description = ''
+                    self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
+                        'album_title': album_title,
+                        'photo_id': _id,
+                        'pic': image,
+                        'description': stripTags( self._parser.unescape( description ) ),
+                        'album_url': album_url
+                        })
+                except Exception:
+                    continue
 
         return self._photos[album_url]
 

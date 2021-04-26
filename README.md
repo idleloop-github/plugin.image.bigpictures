@@ -8,6 +8,7 @@ This addon provides beautiful albums and photos from some nice photojournalism w
 - [TimePhotography](https://time.com/tag/photography/)
 - [ReadingthePictures](https://www.readingthepictures.org/category/notes/)
 - [BBC News In Pictures](https://www.bbc.com/news/in_pictures)
+- [Photojournalism Now](https://photojournalismnow43738385.wordpress.com/)
 - [Reddit: (11 categories)](https://www.reddit.com/)
 
 ### Installation
