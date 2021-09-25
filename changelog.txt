@@ -1,3 +1,7 @@
+5.4 (09.2021)
+  patched TimePhotography scraper
+  added info dialog when changing sources
+
 5.3 (04.2021)
   added scraper for Photojournalism Now
   patch on retrieving image resolutions for AtlanticInFocus
