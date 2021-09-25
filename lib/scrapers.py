@@ -226,11 +226,14 @@ class TimePhotography(BasePlugin):
         url = home_url + '/tag/photography/'
         html = self._get_html(url)
 
-        articles  = parseDOM( html, 'article' )
+        articles = parseDOM( html, 'div', attrs={'class': 'taxonomy-tout'} )
         for _id, article in enumerate( articles ):
-            title = parseDOM( article, 'a' )[1]
-            picture = parseDOM( article, 'div', ret='data-src' )[0]
-            description = parseDOM(article, 'div', attrs={'class': 'summary margin-8-bottom desktop-only'})[0]
+            title = parseDOM( article, 'h2' )[0]
+            picture = parseDOM( article, 'img', ret='src' )[0]
+            try:
+                description = parseDOM(article, 'h3')[0]
+            except Exception:
+                description = ''
             self._albums.append({
                 'title': self._parser.unescape( title ),
                 'album_id': _id,
