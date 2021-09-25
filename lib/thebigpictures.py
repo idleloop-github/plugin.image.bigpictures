@@ -18,6 +18,7 @@
 #
 
 import random
+import xbmcgui # show dialog
 from scrapers import ALL_SCRAPERS, get_scrapers
 
 try:
@@ -70,6 +71,13 @@ class ScraperManager(object):
     def get_albums(self, scraper_id=None):
         if scraper_id is not None:
             self._current_index = scraper_id
+
+        # show dialog with actual album name
+        dialog = xbmcgui.Dialog()
+        dialog.notification( '',
+            self.current_scraper._title,
+            xbmcgui.NOTIFICATION_INFO, int(4000) )
+
         albums = self.current_scraper.get_albums()
         self.log('get_albums got %d items' % len(albums))
         return albums
