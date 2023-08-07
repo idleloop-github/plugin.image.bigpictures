@@ -226,7 +226,7 @@ class TimePhotography(BasePlugin):
         url = home_url + '/tag/photography/'
         html = self._get_html(url)
 
-        articles = parseDOM( html, 'div', attrs={'class': 'taxonomy-tout'} )
+        articles = parseDOM( html, 'div', attrs={'class': 'taxonomy-tout *'} )
         for _id, article in enumerate( articles ):
             title = parseDOM( article, 'h2' )[0]
             picture = parseDOM( article, 'img', ret='src' )[0]
@@ -248,21 +248,18 @@ class TimePhotography(BasePlugin):
         self._photos[album_url] = []
         html = self._get_html(album_url)
         album_title = self._parser.unescape( re.findall( r'"headline":"(?P<title>[^"]+)"', html )[0] )
-        images  = parseDOM( html, 'div', attrs={'class': 'component lazy-image lead-media marquee_large_2x[^"]*'}, ret='data-src' )
-        images += parseDOM( parseDOM( html, 'div', attrs={'class': 'image-wrapper'}), 'div', attrs={'class': 'component lazy-image[^"]*'}, ret='data-src' )
+        images = parseDOM( html, 'div', attrs={'class': 'image-wrapper'})
         if len(images) == 0:
-            # if there are no images that's because the article contains just a video: so show its poster only
-            images = [ parseDOM( html, 'video', ret='poster' )[0] ]
+            images = [ '' ]
             descriptions = [ '' ]
-        else:
-            descriptions  = parseDOM( html, 'div', attrs={'class': 'component lazy-image lead-media marquee_large_2x[^"]*'}, ret='data-alt' )
-            descriptions += parseDOM( parseDOM( html, 'div', attrs={'class': 'image-wrapper'}), 'div', attrs={'class': 'component lazy-image[^"]*'}, ret='data-alt' )
         for _id, image in enumerate( images ):
+            image_url = parseDOM( image, 'img', attrs={}, ret='src' )[0]
+            description  = parseDOM( image, 'img', attrs={}, ret='alt' )[0]
             self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
                 'album_title': album_title,
                 'photo_id': _id,
-                'pic': image,
-                'description': stripTags( self._parser.unescape( descriptions[_id] ) ),
+                'pic': image_url,
+                'description': stripTags( self._parser.unescape( description ) ),
                 'album_url': album_url
                 })
 
