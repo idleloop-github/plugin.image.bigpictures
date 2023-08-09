@@ -18,7 +18,7 @@
 #
 #    ..........................................
 #
-#    Modified by idleloop@yahoo.com: 2017, 2018, 2019, 2021
+#    Modified by idleloop@yahoo.com: 2017, 2018, 2019, 2021, 2023
 #
 
 import re
@@ -569,6 +569,62 @@ class Reddit(BasePlugin):
             'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_008985.png',
             'description': 'Waterscapes and aquatics',
             'album_url': self.URL_PREFIX + '/r/WaterPorn'}
+        )
+        self._albums.append({
+            'title': 'lomography',
+            'album_id': 1,
+            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'description': 'Lomography',
+            'album_url': self.URL_PREFIX + '/r/lomography'}
+        )
+        self._albums.append({
+            'title': 'filmphotography',
+            'album_id': 1,
+            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'description': 'Film photography',
+            'album_url': self.URL_PREFIX + '/r/filmphotography'}
+        )
+        self._albums.append({
+            'title': 'analog',
+            'album_id': 1,
+            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'description': 'Analog',
+            'album_url': self.URL_PREFIX + '/r/analog'}
+        )
+        self._albums.append({
+            'title': 'HDR',
+            'album_id': 1,
+            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'description': 'HDR',
+            'album_url': self.URL_PREFIX + '/r/HDR'}
+        )
+        self._albums.append({
+            'title': 'portraits',
+            'album_id': 1,
+            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'description': 'Portraits',
+            'album_url': self.URL_PREFIX + '/r/portraits'}
+        )
+        self._albums.append({
+            'title': 'portraitphotos',
+            'album_id': 1,
+            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'description': 'Portrait photos',
+            'album_url': self.URL_PREFIX + '/r/portraitphotos'}
+        )
+        self._albums.append({
+            'title': 'pics',
+            'album_id': 1,
+            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'description': 'Pics',
+            'album_url': self.URL_PREFIX + '/r/pics'}
+        )
+        self._albums.append({
+            'title': 'fashionphotography',
+            'album_id': 1,
+            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'description': 'Fashion photography',
+            'album_url': self.URL_PREFIX + '/r/fashionphotography'}
         )
         return self._albums
 
