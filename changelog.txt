@@ -1,3 +1,8 @@
+5.5 (08.2023)
+  patched Reddit scraper
+  patched TimePhotography scraper
+  More galleries added to Reddit scraper
+
 5.4 (09.2021)
   patched TimePhotography scraper
   added info dialog when changing sources
