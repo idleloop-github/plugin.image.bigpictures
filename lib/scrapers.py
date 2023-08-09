@@ -505,21 +505,21 @@ class Reddit(BasePlugin):
             'album_id': 2,
             'pic': 'https://b.thumbs.redditmedia.com/GWtvw04-nxg-WqCltgj9ZWN5SzvHGjDf2sIvPpWKPes.png',
             'description': 'High Res Images of Space',
-            'album_url': self.URL_PREFIX + '/r/SpacePorn'}
+            'album_url': self.URL_PREFIX + '/r/spaceporn'}
         )
         self._albums.append({
             'title': 'SeaPorn',
             'album_id': 3,
             'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
             'description': 'Pictures of the sea',
-            'album_url': self.URL_PREFIX + '/r/SeaPorn'}
+            'album_url': self.URL_PREFIX + '/r/seaporn'}
         )
         self._albums.append({
             'title': 'BeachPorn',
             'album_id': 4,
             'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_FF8717.png',
             'description': 'High-res images of Beaches from around the globe.',
-            'album_url': self.URL_PREFIX + '/r/BeachPorn'}
+            'album_url': self.URL_PREFIX + '/r/beachporn'}
         )
         self._albums.append({
             'title': 'AerialPorn',
