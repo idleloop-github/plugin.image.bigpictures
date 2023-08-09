@@ -23,6 +23,7 @@
 
 import re
 import urllib2
+from urllib import quote
 import time
 from random import randint
 import HTMLParser # HTMLParser().unescape()
@@ -48,6 +49,7 @@ ALL_SCRAPERS = (
     'Reddit',
 )
 
+USER_AGENT = 'User-Agent=Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)'
 
 class BasePlugin(object):
 
@@ -78,8 +80,13 @@ class BasePlugin(object):
         raise NotImplementedError
 
     def _get_html(self, url, retries=5):
+        url = url.encode('utf-8', 'ignore')
         self.log('_get_html opening url "%s"' % url)
-        req = urllib2.Request(url, None, { 'User-Agent' : 'Mozilla/5.0' })
+        url_match = re.match( r'(.+)/([^/]+)/$', url )
+        if ( url_match ):
+            url = url_match.group(1) + '/' + quote( url_match.group(2) ) + '/'
+        self.log(url)
+        req = urllib2.Request( url , None, { 'User-Agent' : USER_AGENT})
         html = ''
         retry_counter=0
         while True:
@@ -572,56 +579,62 @@ class Reddit(BasePlugin):
             dialog = xbmcgui.Dialog()
             dialog.notification( 'The Big Picture',
                 'retrieving reddit images ...',
-                xbmcgui.NOTIFICATION_INFO, int(2000) )
+                xbmcgui.NOTIFICATION_INFO, int(10000) )
 
         html = self._get_html( album_url )
-        album_title = parseDOM( html, 'title' )[0].decode('utf-8', 'ignore')
-        json_data = parseDOM( html, 'script', attrs={'id': 'data'} )[0].encode('utf-8', 'ignore')
-        # try to replace some unicode codes of type \u00xy :
-        json_data = self.unicode_escape.sub( self.replace_unicode_codes, json_data )
-        # there may be no "content" tag in "models" array, so it'll be extracted later:
-        json_regex = r'"(?P<id>[^"]+)":{"id":"(?P=id)".+?"title":"(?P<title>[^"]+)","author":"(?P<author>[^"]+)".+?"domain":"(?P<domain>[^"]+)".+?"isSponsored":(?P<sponsored>[^,]+),(?P<data>.+?)"created":(?P<pic_time>\d+),'
-        for image_data in re.finditer( json_regex, json_data ):
-            domain = image_data.group('domain')
-            if ( domain == 'reddit.com' or domain.startswith('self.') ):
-                continue
-            author = image_data.group('author')
-            # remove registers with adverstisments
-            if image_data.group('sponsored') == 'true':
-                continue
-            secoundary_regex = r'("content":"(?P<pic>[^"]+)"),(?P<urls>.+?)'
-            secoundary_data = re.search( secoundary_regex, image_data.group('data') )
-            try:
-                pic = secoundary_data.group('pic')
-            except:
-                continue
-            try:
-                if ( 'external-preview.redd.it' not in pic and 'i.redd.it' not in pic ):
-                    pic = re.search( r'(https://external-preview.redd.it/[^"]+)', secoundary_data.group('urls') )
-                    if pic:
-                        pic = pic.group(0)
-                    else:
-                        continue
-            except:
-                continue
-            pic = pic.replace( '\u0026', '&' )
-            pic_time = image_data.group('pic_time')
-            # convert Unix time to UTC:
-            pic_time = time.strftime( "%Y-%m-%d %H:%M", time.localtime( int( int( pic_time ) / 1000 ) ) )
 
-            description = image_data.group('title').decode('utf-8', 'ignore').replace( '\\' , '' )
-            description+= "\n\nAuthor: " + author
-            description+= "  @ " + pic_time
+        album_title = parseDOM( html, 'shreddit-title', ret='title' )[0].decode('utf-8', 'ignore')
+        # now more publications must be retrieved, so the feed must be located and retouched:
+        feed = self.URL_PREFIX + parseDOM( html, 'faceplate-partial', attrs={'method': 'GET'}, ret='src' )[0]
+        feed = feed.replace( '&amp;', '&' )
+        # retouched to retrieve 25 images:
+        feed = re.sub( r'feedLength=\d+', 'feedLength=25', feed )
+        html = self._get_html( feed )
+        shreddit_post = parseDOM( html, 'shreddit-post')
+        description_post = parseDOM( html, 'shreddit-post', ret='post-title')
+        author_post = parseDOM( html, 'shreddit-post', ret='author')
+        id = 0
+        for _id, image_data in enumerate( shreddit_post ):
+            try:
+                pic_time = parseDOM( image_data, 'faceplate-timeago', ret='ts' )[0]
+
+                description = description_post[_id].decode('utf-8', 'ignore').replace( '\\' , '' )
+                description+= "\n\nAuthor: " + author_post[_id]
+                description+= "  @ " + pic_time
+
+                pic = self.URL_PREFIX + parseDOM( image_data, 'a', attrs={'slot': 'full-post-link'}, ret='href' )[0]
+                image_link = self._get_html( pic )
+
+                image_link_shreddit_post = parseDOM( image_link, 'shreddit-post')[0]
+                pic = parseDOM( image_link_shreddit_post, 'a', ret='href' )
+                for _id2, pic_link in enumerate( pic ):
+                    if ( re.search( r's=[\w\d]+', pic_link ) ):
+                        pic = pic_link
+                        break
+
+                if ( re.match( r'auto=webp', pic ) ):
+                    continue
+
+                if ( XBMC_MODE and id > 0 and id % 5 == 0 ):
+                    dialog = xbmcgui.Dialog()
+                    dialog.notification( 'The Big Picture',
+                        str(id) + ' reddit images so far...',
+                        xbmcgui.NOTIFICATION_INFO, int(5000) )
+
+            except Exception:
+                continue
 
             self._photos[album_url].append({
-                'title': album_title,
+                'title': '%d - %s' % (id + 1, album_title),
                 'album_title': album_title,
                 'photo_id': id,
-                'author': author,
+                'author': author_post[_id],
                 'pic': pic,
-                'description': description,
+                'description': stripTags( self._parser.unescape( description ) ),
                 'album_url': album_url,
             })
+
+            id += 1
 
         return self._photos[album_url]
 
