@@ -496,7 +496,7 @@ class Reddit(BasePlugin):
         self._albums.append({
             'title': 'EarthPorn',
             'album_id': 1,
-            'pic': 'https://styles.redditmedia.com/t5_2sbq3/styles/communityIcon_63gyqtn0h9v41.png',
+            'pic': 'https://styles.redditmedia.com/t5_2sbq3/styles/communityIcon_pf6xg83rv3981.png',
             'description': 'Pictures of the earth',
             'album_url': self.URL_PREFIX + '/r/EarthPorn'}
         )
@@ -568,7 +568,7 @@ class Reddit(BasePlugin):
             'album_id': 11,
             'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_008985.png',
             'description': 'Waterscapes and aquatics',
-            'album_url': self.URL_PREFIX + '/r/WaterPorn'}
+            'album_url': self.URL_PREFIX + '/r/waterporn'}
         )
         self._albums.append({
             'title': 'lomography',
@@ -580,14 +580,14 @@ class Reddit(BasePlugin):
         self._albums.append({
             'title': 'filmphotography',
             'album_id': 1,
-            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'pic': 'https://styles.redditmedia.com/t5_2re71/styles/communityIcon_jyuj6v194vva1.png',
             'description': 'Film photography',
             'album_url': self.URL_PREFIX + '/r/filmphotography'}
         )
         self._albums.append({
             'title': 'analog',
             'album_id': 1,
-            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'pic': 'https://styles.redditmedia.com/t5_2r344/styles/communityIcon_arrf56nbq1t81.png',
             'description': 'Analog',
             'album_url': self.URL_PREFIX + '/r/analog'}
         )
@@ -601,7 +601,7 @@ class Reddit(BasePlugin):
         self._albums.append({
             'title': 'portraits',
             'album_id': 1,
-            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'pic': 'https://styles.redditmedia.com/t5_2sxa6/styles/communityIcon_ufzy3czufc871.png',
             'description': 'Portraits',
             'album_url': self.URL_PREFIX + '/r/portraits'}
         )
@@ -615,14 +615,14 @@ class Reddit(BasePlugin):
         self._albums.append({
             'title': 'pics',
             'album_id': 1,
-            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'pic': 'https://b.thumbs.redditmedia.com/VZX_KQLnI1DPhlEZ07bIcLzwR1Win808RIt7zm49VIQ.png',
             'description': 'Pics',
             'album_url': self.URL_PREFIX + '/r/pics'}
         )
         self._albums.append({
             'title': 'fashionphotography',
             'album_id': 1,
-            'pic': 'https://www.redditstatic.com/avatars/avatar_default_02_0079D3.png',
+            'pic': 'https://styles.redditmedia.com/t5_2req6/styles/communityIcon_ew9kdggkk1641.jpg',
             'description': 'Fashion photography',
             'album_url': self.URL_PREFIX + '/r/fashionphotography'}
         )
