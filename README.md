@@ -9,11 +9,12 @@ This addon provides beautiful albums and photos from some nice photojournalism w
 - [ReadingthePictures](https://www.readingthepictures.org/category/notes/)
 - [BBC News In Pictures](https://www.bbc.com/news/in_pictures)
 - [Photojournalism Now](https://photojournalismnow43738385.wordpress.com/)
+- [CNN Photos](https://edition.cnn.com/world/photos/)
 - [Reddit: (19 categories)](https://www.reddit.com/)
 
 ### Installation
 
-* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v5.5/plugin.image.bigpictures-5.5.zip).   
+* [Download the zip](https://github.com/idleloop-github/script.image.bigpictures/releases/download/v5.6/plugin.image.bigpictures-5.6.zip).   
 * Install on Kodi: Add-ons / Download / .. / Install from zip file / *and choose the zip file*   
 
 ### Forked from https://github.com/dersphere/script.image.bigpictures

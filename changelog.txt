@@ -1,7 +1,11 @@
+5.6 (08.2023)
+  added scraper for CNN Photos
+  patched icons for Reddit galleries
+
 5.5 (08.2023)
   patched Reddit scraper
   patched TimePhotography scraper
-  More galleries added to Reddit scraper
+  more galleries added to Reddit scraper
 
 5.4 (09.2021)
   patched TimePhotography scraper
