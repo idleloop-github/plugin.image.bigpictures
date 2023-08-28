@@ -25,6 +25,7 @@
         <setting id="enable_ReadingthePictures" type="bool" label="32408" default="true"/>
         <setting id="enable_BBCNews" type="bool" label="32409" default="true"/>
         <setting id="enable_PhotojournalismNow" type="bool" label="32410" default="true"/>
+        <setting id="enable_CNNPhotos" type="bool" label="32411" default="true"/>
         <setting id="enable_Reddit" type="bool" label="32407" default="true"/>
     </category>
 </settings>
