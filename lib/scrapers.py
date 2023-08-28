@@ -46,6 +46,7 @@ ALL_SCRAPERS = (
     'ReadingthePictures',
     'BBCNews',
     'PhotojournalismNow',
+    'CNNPhotos',
     'Reddit',
 )
 
@@ -481,6 +482,83 @@ class PhotojournalismNow(BasePlugin):
                         })
                 except Exception:
                     continue
+
+        return self._photos[album_url]
+
+
+class CNNPhotos(BasePlugin):
+
+    _title = 'CNN Photos'
+
+    def _get_albums(self):
+        self._albums = []
+        home_url = 'https://edition.cnn.com/'
+        url = home_url + 'world/photos/'
+        html = self._get_html(url)
+        html = parseDOM( html, 'section', attrs={'class': 'layout__wrapper layout-no-rail__wrapper'} )[0]
+
+        articles  = parseDOM( html, 'div', attrs={'class': r'[\w\d\-\_\. ]+container__item[\w\d\-\_\. ]+'} )
+        for _id, article in enumerate( articles ):
+            try:
+                title = stripTags( parseDOM( article, 'div', attrs={'class': 'container__text.+'} )[0] )
+                picture = re.sub( '\?.+', '', parseDOM( article, 'img', ret='src' )[0] )
+                description = parseDOM( article, 'span', attrs={'data-editable': 'headline'} )[0]
+                album_url = parseDOM(article, 'a', ret='href')[0]
+                if ( re.match( r'^/', album_url ) ):
+                    album_url = home_url + album_url
+                self._albums.append({
+                    'title': self._parser.unescape( title ),
+                    'album_id': _id,
+                    'pic': picture,
+                    'description': stripTags( self._parser.unescape( description ) ),
+                    'album_url': album_url
+                    })
+            except Exception:
+                continue
+
+        return self._albums
+
+    def _get_photos(self, album_url):
+        self._photos[album_url] = []
+
+        if XBMC_MODE:
+            dialog = xbmcgui.Dialog()
+            dialog.notification( 'The Big Picture',
+                'retrieving CNN photos ...',
+                xbmcgui.NOTIFICATION_INFO, int(5000) )
+
+        html = self._get_html(album_url)
+        album_title = self._parser.unescape( parseDOM( html, 'title' )[0] )
+        figures = parseDOM( html, 'figure' )
+        if ( len(figures) == 0 ):
+            pictures = parseDOM( html, 'picture' )
+        else:
+            pictures = figures
+            figures = []
+        descriptions = parseDOM( html, 'span', attrs={'data-editable': 'metaCaption'} )
+        if ( len(descriptions) == 0 ):
+            descriptions = parseDOM( html, 'figcaption' )
+            self.log( 'figcaption' )
+        for _id, picture in enumerate( pictures ):
+            try:
+                image = parseDOM( picture, 'img', ret='src' )[0]
+                if ( re.match( '^data:image', image ) ):
+                    image = parseDOM( picture, 'img', ret='data-src' )[0]
+                if ( image[0] == '.' ):
+                    image = album_url + image[2:]
+                elif ( not re.match( r'^http', image) ):
+                        image = album_url + image
+                description = descriptions[_id]
+                self.log(description)
+                self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
+                    'album_title': album_title,
+                    'photo_id': _id,
+                    'pic': image,
+                    'description': stripTags( self._parser.unescape( description ) ),
+                    'album_url': album_url
+                    })
+            except Exception:
+                continue
 
         return self._photos[album_url]
 
