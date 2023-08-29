@@ -86,7 +86,6 @@ class BasePlugin(object):
         url_match = re.match( r'(.+)/([^/]+)/$', url )
         if ( url_match ):
             url = url_match.group(1) + '/' + quote( url_match.group(2) ) + '/'
-        self.log(url)
         req = urllib2.Request( url , None, { 'User-Agent' : USER_AGENT})
         html = ''
         retry_counter=0
@@ -538,7 +537,6 @@ class CNNPhotos(BasePlugin):
         descriptions = parseDOM( html, 'span', attrs={'data-editable': 'metaCaption'} )
         if ( len(descriptions) == 0 ):
             descriptions = parseDOM( html, 'figcaption' )
-            self.log( 'figcaption' )
         for _id, picture in enumerate( pictures ):
             try:
                 image = parseDOM( picture, 'img', ret='src' )[0]
@@ -549,7 +547,6 @@ class CNNPhotos(BasePlugin):
                 elif ( not re.match( r'^http', image) ):
                         image = album_url + image
                 description = descriptions[_id]
-                self.log(description)
                 self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
                     'album_title': album_title,
                     'photo_id': _id,
