@@ -50,7 +50,7 @@ ALL_SCRAPERS = (
     'Reddit',
 )
 
-USER_AGENT = 'User-Agent=Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3 ( .NET CLR 3.5.30729)'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0'
 
 class BasePlugin(object):
 
@@ -86,7 +86,7 @@ class BasePlugin(object):
         url_match = re.match( r'(.+)/([^/]+)/$', url )
         if ( url_match ):
             url = url_match.group(1) + '/' + quote( url_match.group(2) ) + '/'
-        req = urllib2.Request( url , None, { 'User-Agent' : USER_AGENT})
+        req = urllib2.Request( url , None, { 'User-Agent' : USER_AGENT })
         html = ''
         retry_counter=0
         while True:
