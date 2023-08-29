@@ -1,3 +1,6 @@
+5.6.1 (08.2023)
+  removed log lines
+
 5.6 (08.2023)
   added scraper for CNN Photos
   patched icons for Reddit galleries
