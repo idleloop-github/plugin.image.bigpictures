@@ -237,6 +237,7 @@ class TimePhotography(BasePlugin):
         for _id, article in enumerate( articles ):
             title = parseDOM( article, 'h2' )[0]
             picture = parseDOM( article, 'img', ret='src' )[0]
+            album_url = home_url + parseDOM(article, 'a', ret='href')[0]
             try:
                 description = parseDOM(article, 'h3')[0]
             except Exception:
@@ -246,7 +247,7 @@ class TimePhotography(BasePlugin):
                 'album_id': _id,
                 'pic': picture,
                 'description': stripTags( self._parser.unescape( description ) ),
-                'album_url': home_url + parseDOM(article, 'a', ret='href')[0]
+                'album_url': album_url
                 })
 
         return self._albums
@@ -255,13 +256,19 @@ class TimePhotography(BasePlugin):
         self._photos[album_url] = []
         html = self._get_html(album_url)
         album_title = self._parser.unescape( re.findall( r'"headline":"(?P<title>[^"]+)"', html )[0] )
-        images = parseDOM( html, 'div', attrs={'class': 'image-wrapper'})
+        images = parseDOM( html, 'figure' )
         if len(images) == 0:
             images = [ '' ]
             descriptions = [ '' ]
         for _id, image in enumerate( images ):
-            image_url = parseDOM( image, 'img', attrs={}, ret='src' )[0]
-            description  = parseDOM( image, 'img', attrs={}, ret='alt' )[0]
+            try:
+                image_url = parseDOM( image, 'img', attrs={}, ret='src' )[0]
+            except Exception:
+                continue
+            try:
+                description  = parseDOM( image, 'span' )[0]
+            except Exception:
+                description = ''
             self._photos[album_url].append({'title': '%d - %s' % (_id + 1, album_title),
                 'album_title': album_title,
                 'photo_id': _id,
