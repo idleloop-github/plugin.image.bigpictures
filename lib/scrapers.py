@@ -373,26 +373,36 @@ class BBCNews(BasePlugin):
         home_url = 'https://www.bbc.com'
         url = home_url + '/news/in_pictures'
         html = self._get_html(url)
+        html = html.replace( 'srcSet', 'srcset' )
 
-        articles  = parseDOM( html, 'div', attrs={'class': 'gs-o-media__body'} )
-        pictures  = parseDOM( html, 'div', attrs={'class': \
-                        'gs-u-mb\+ gel-body-copy qa-post-body'} )
-        descriptions = parseDOM( html, 'div', attrs={'class': 'gel-5/8@l'} )
-        timestamp = parseDOM( html, 'span', attrs={'class': 'qa-post-auto-meta'} )
+        section = parseDOM( html, 'section', attrs={'data-analytics_group_name': ''} )[0]
+        articles = parseDOM( section, 'div', attrs={'data-testid': '[^"]+-card'})
+        section = parseDOM( html, 'section', attrs={'data-analytics_group_name': 'Features'} )[0]
+        articles.extend( parseDOM( section, 'div', attrs={'data-testid': '[^"]+-card'}) )
+        section = parseDOM( html, 'section', attrs={'data-analytics_group_name': 'Week in pictures'} )[0]
+        articles.extend( parseDOM( section, 'div', attrs={'data-testid': '[^"]+-card'}) )
+        section = parseDOM( html, 'section', attrs={'data-analytics_group_name': 'Your pictures'} )[0]
+        articles.extend( parseDOM( section, 'div', attrs={'data-testid': '[^"]+-card'}) )
         for _id, article in enumerate( articles ):
-            title = parseDOM( parseDOM( article, 'a' )[0], 'span')[0]
+            title = stripTags( parseDOM( article, 'h2' )[0] )
+            picture = 'https://www.bbc.com/bbcx/apple-touch-icon.png'
+            description = ''
             try:
-                picture = parseDOM( pictures[_id], 'img', ret='srcset' )[0]
-                picture = re.search( r', (?P<bigger_url>https://[^ ]+) \d+w$', picture ).group('bigger_url')
-                description = parseDOM( descriptions[_id], 'p' )[0]
+                picture = parseDOM( article, 'img', ret='srcset')[0]
+                picture = re.search( r', *(?P<bigger_url>https://[^ ]+) \d+w$', picture ).group('bigger_url')
+                description = parseDOM( article, 'img', ret='alt')[0]
             except Exception:
-                continue
+                pass
+            description = parseDOM( article, 'p' )[0] + ((' | ' + description) if (description != '') else '')
+            try:
+                timestamp = parseDOM( article, 'span' )[0] + ' | ' + parseDOM( article, 'span' )[1]
+            except Exception:
+                pass
             self._albums.append({
                 'title': self._parser.unescape( title ),
                 'album_id': _id,
                 'pic': picture,
-                'description': stripTags( self._parser.unescape( description ) ) + \
-                                "\n\nPosted @" + timestamp[_id],
+                'description': stripTags( self._parser.unescape( description + "\n\nPosted " + timestamp ) ),
                 'album_url': home_url + parseDOM(article, 'a', ret='href')[0]
                 })
 
@@ -402,8 +412,9 @@ class BBCNews(BasePlugin):
         self._photos[album_url] = []
         html = self._get_html(album_url)
         html = html.replace( 'srcSet', 'srcset' )
-        album_title = self._parser.unescape( parseDOM( html, 'title' )[0] )
-        pictures = parseDOM( html, 'img', attrs={'class': '.+Image[^"]+'}, ret='srcset' )
+        album_title = stripTags( self._parser.unescape( parseDOM( html, 'h1' )[0] ) )
+        pictures = parseDOM( html, 'div', attrs={'data-testid': 'image'} )
+        pictures = parseDOM( ''.join(pictures), 'img', ret='srcset' )
         descriptions = parseDOM( html, 'figcaption' )
         if ( len(descriptions) == 0 ):
             descriptions = [''] * len(pictures)
@@ -415,7 +426,7 @@ class BBCNews(BasePlugin):
                 condition = True
                 while ( condition ):
                     picture = pictures[id_picture]
-                    picture = re.search( r', (?P<bigger_url>https://[^ ]+) \d+w$', picture ).group('bigger_url')
+                    picture = re.search( r', *(?P<bigger_url>https://[^ ]+) \d+w$', picture ).group('bigger_url')
                     id_picture += 1
                     if ( re.search( r'(transparent|line)[^\."]+\.png', picture ) == None ):
                         condition = False
