@@ -509,6 +509,13 @@ class CNNPhotos(BasePlugin):
 
     def _get_albums(self):
         self._albums = []
+
+        if XBMC_MODE:
+            dialog = xbmcgui.Dialog()
+            dialog.notification( 'The Big Picture',
+                'retrieving CNN photos ...',
+                xbmcgui.NOTIFICATION_INFO, int(5000) )
+
         home_url = 'https://edition.cnn.com/'
         url = home_url + 'world/photos/'
         html = self._get_html(url)
