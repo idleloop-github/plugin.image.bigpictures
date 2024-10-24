@@ -754,29 +754,17 @@ class Reddit(BasePlugin):
             try:
                 pic_time = parseDOM( image_data, 'faceplate-timeago', ret='ts' )[0]
 
-                description = description_post[_id].decode('utf-8', 'ignore').replace( '\\' , '' )
+                description = description_post[_id]
                 description+= "\n\nAuthor: " + author_post[_id]
                 description+= "  @ " + pic_time
 
-                pic = self.URL_PREFIX + parseDOM( image_data, 'a', attrs={'slot': 'full-post-link'}, ret='href' )[0]
-                image_link = self._get_html( pic )
-
-                image_link_shreddit_post = parseDOM( image_link, 'shreddit-post')[0]
-                pic = parseDOM( image_link_shreddit_post, 'a', ret='href' )
-                for _id2, pic_link in enumerate( pic ):
-                    if ( re.search( r's=[\w\d]+', pic_link ) ):
-                        pic = pic_link
-                        break
-
-                if ( re.match( r'auto=webp', pic ) ):
-                    continue
+                pic = parseDOM( image_data, 'img', attrs={'class': 'i18n-post-media-img media-lightbox-img'}, ret='src' )[0]
 
                 if ( XBMC_MODE and id > 0 and id % 5 == 0 ):
                     dialog = xbmcgui.Dialog()
                     dialog.notification( 'The Big Picture',
                         str(id) + ' reddit images so far...',
                         xbmcgui.NOTIFICATION_INFO, int(5000) )
-
             except Exception:
                 continue
 
